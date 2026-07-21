@@ -1,0 +1,1449 @@
+{
+  "name": "Email Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dcbfcd0e-366e-48f6-960c-1cedaffd8ae3",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "=Valid",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        400
+      ],
+      "id": "e8faa77e-23b1-4cf1-add8-659e4b88338e",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -528,
+        368
+      ],
+      "id": "0d44c335-3bfc-4b11-87e7-4aa400d1b3e6",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8",
+          "mode": "list",
+          "cachedResultName": "Email Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -304,
+        368
+      ],
+      "id": "3e9b0d0d-a386-4aa7-b002-be49b8268f27",
+      "name": "Get Email",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5VGnKBACPimuTBoE",
+          "name": "New"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        144,
+        368
+      ],
+      "id": "1f08d4f8-f15a-4f8c-926e-d23946bf8259",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "email": "={{ $json.email }}",
+        "addOptions": {}
+      },
+      "type": "@zerobounce/n8n-nodes-zerobounce.zeroBounce",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        400
+      ],
+      "id": "e43b1625-5e89-4096-8d18-de54df224192",
+      "name": "Validate an email",
+      "retryOnFail": true,
+      "credentials": {
+        "zeroBounceApi": {
+          "id": "ybvRhq5jOAZbKAu3",
+          "name": "ZeroBounce account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0a518e71-7eb5-4a00-9cc5-7759576af0f3",
+              "leftValue": "={{ $json.format_valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "b3ad97c9-256c-4245-aca2-a23b1e2886bd",
+              "leftValue": "={{ $json.mx_found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        592,
+        368
+      ],
+      "id": "47f29306-3602-4422-befe-2f281730701d",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "https://api.emailable.com/v1/verify",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "live_d7decf1ce68b3299c76f"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "name": "smpt",
+              "value": "true"
+            },
+            {
+              "name": "format",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        816,
+        272
+      ],
+      "id": "808d0b09-87fe-4368-8ea7-745114e9e834",
+      "name": "Emailable Verification",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "https://apilayer.net/api/check",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_key",
+              "value": "387c14bf3a84f12364a0deda11eff979"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.Email }}"
+            },
+            {
+              "name": "smpt",
+              "value": "1"
+            },
+            {
+              "name": "format",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        368,
+        368
+      ],
+      "id": "9263136d-d196-4ee4-ac34-93c4a065ec2e",
+      "name": "Mailboxlayer Format Checker",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fc9e6cc9-0abd-409b-8eb8-9add2078223f",
+              "leftValue": "={{ $json.state }}",
+              "rightValue": "deliverable",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        272
+      ],
+      "id": "9f96929e-89d7-4510-8710-fd4e150c09cd",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "746b2a61-fd9e-4705-bb89-e95fdb47a5a3",
+              "leftValue": "={{ $json.labelIds[0] }}",
+              "rightValue": "SENT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1936,
+        -16
+      ],
+      "id": "d4517162-e88f-47b1-a2f1-3da1b90490a2",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "746b2a61-fd9e-4705-bb89-e95fdb47a5a3",
+              "leftValue": "={{ $json.labelIds[0] }}",
+              "rightValue": "SENT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1920,
+        320
+      ],
+      "id": "e0539a8a-dc0b-4ca1-b439-e6e87208a25d",
+      "name": "If5"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        464
+      ],
+      "id": "bd3efd4d-b2e5-461c-8940-eef0d6af6b6c",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        368,
+        176
+      ],
+      "id": "dbf4bca6-b21b-433b-a942-d8190446ede7",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d92ceb83-a65d-4218-bd83-bd06444544d5",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "Pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -80,
+        368
+      ],
+      "id": "a2a9be21-4f14-45d5-8c24-98e83419f496",
+      "name": "Pending Status"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8",
+          "mode": "list",
+          "cachedResultName": "Email Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Loop Over Items').item.json.Email }}",
+            "status": "Verification Failed",
+            "sending date": "={{ $now.toFormat(\"yyyy-MM-dd hh:mm a\") }}",
+            "verified by": "None"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message ",
+              "displayName": "message ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sending date",
+              "displayName": "sending date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verified by",
+              "displayName": "verified by",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2160,
+        848
+      ],
+      "id": "462f384f-7f52-4c76-8e2e-b5988e88a785",
+      "name": "Verification Failed",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5VGnKBACPimuTBoE",
+          "name": "New"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8",
+          "mode": "list",
+          "cachedResultName": "Email Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Loop Over Items').item.json.Email }}",
+            "status": "Send",
+            "sending date": "={{ $now.toFormat(\"yyyy-MM-dd hh:mm a\") }}",
+            "verified by": "Emailable"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message ",
+              "displayName": "message ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sending date",
+              "displayName": "sending date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "verified by",
+              "displayName": "verified by",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2160,
+        -112
+      ],
+      "id": "a6b2ef7b-00fe-425c-9ff8-90079dc9b277",
+      "name": "Update Status To Send",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5VGnKBACPimuTBoE",
+          "name": "New"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8",
+          "mode": "list",
+          "cachedResultName": "Email Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Loop Over Items').item.json.Email }}",
+            "status": "Email Failed",
+            "sending date": "={{ $now.toFormat(\"yyyy-MM-dd hh:mm a\") }}",
+            "verified by": "None"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message ",
+              "displayName": "message ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sending date",
+              "displayName": "sending date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verified by",
+              "displayName": "verified by",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2160,
+        80
+      ],
+      "id": "1a44326d-cafb-4783-be63-a7882142256d",
+      "name": "Update Status Email Failed",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5VGnKBACPimuTBoE",
+          "name": "New"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8",
+          "mode": "list",
+          "cachedResultName": "Email Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Loop Over Items').item.json.Email }}",
+            "status": "Send",
+            "sending date": "={{ $now.toFormat(\"yyyy-MM-dd hh:mm a\") }}",
+            "verified by": "Zerobounce"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message ",
+              "displayName": "message ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sending date",
+              "displayName": "sending date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "verified by",
+              "displayName": "verified by",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2160,
+        272
+      ],
+      "id": "a5b962b5-4463-419e-b229-2040df3d509b",
+      "name": "Update Status To Send1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5VGnKBACPimuTBoE",
+          "name": "New"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8",
+          "mode": "list",
+          "cachedResultName": "Email Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Loop Over Items').item.json.Email }}",
+            "status": "Email Failed",
+            "sending date": "={{ $now.toFormat(\"yyyy-MM-dd hh:mm a\") }}",
+            "verified by": "None"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message ",
+              "displayName": "message ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sending date",
+              "displayName": "sending date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verified by",
+              "displayName": "verified by",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2160,
+        464
+      ],
+      "id": "26ca0ab6-d6bb-4080-b3ba-ea17c587a8db",
+      "name": "Update Status Email Failed1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5VGnKBACPimuTBoE",
+          "name": "New"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8",
+          "mode": "list",
+          "cachedResultName": "Email Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HOputQuh0-3hJGIhB-IhRha_nCgHE4BBkNdg6JnZnQ8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Loop Over Items').item.json.Email }}",
+            "status": "Verification Failed",
+            "sending date": "={{ $now.toFormat(\"yyyy-MM-dd hh:mm a\") }}",
+            "verified by": "None"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message ",
+              "displayName": "message ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sending date",
+              "displayName": "sending date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verified by",
+              "displayName": "verified by",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2160,
+        656
+      ],
+      "id": "29c4a3d1-3800-440b-a671-7890ce0a9ec2",
+      "name": "Verification Failed1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5VGnKBACPimuTBoE",
+          "name": "New"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Loop Over Items').item.json.Email }}",
+        "subject": "={{ $('Loop Over Items').item.json.Subject }}",
+        "emailType": "text",
+        "message": "={{ $('Loop Over Items').item.json['message '] }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        -16
+      ],
+      "id": "034e1ff1-d3d1-4584-af51-f90c3c476795",
+      "name": "Send Email",
+      "webhookId": "a376970d-0632-4dd5-9932-add29809f774",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YrJ1Cc1PVyFfrR04",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Loop Over Items').item.json.Email }}",
+        "subject": "={{ $('Loop Over Items').item.json.Subject }}",
+        "emailType": "text",
+        "message": "={{ $('Loop Over Items').item.json['message '] }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1728,
+        320
+      ],
+      "id": "259366b4-3f07-48fa-8f09-281e40b4a3eb",
+      "name": "Send Email1",
+      "webhookId": "a376970d-0632-4dd5-9932-add29809f774",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YrJ1Cc1PVyFfrR04",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send Email1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Verification Failed1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Email": {
+      "main": [
+        [
+          {
+            "node": "Pending Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mailboxlayer Format Checker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate an email": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Emailable Verification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Verification Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mailboxlayer Format Checker": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emailable Verification": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validate an email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Update Status To Send",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Status Email Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Update Status To Send1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Status Email Failed1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pending Status": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status To Send": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status Email Failed": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status To Send1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status Email Failed1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verification Failed1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email1": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verification Failed": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "8cbd8bc4-3832-4e48-9a40-1abb741da5e9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "87cb0386c87e11ee30bfe6c3d911d2600a599f88b1ef515ed9a5c60d6e0bb3e3"
+  },
+  "nodeGroups": [],
+  "id": "RQ2qvQStQlrmEn1M",
+  "tags": []
+}
